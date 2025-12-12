@@ -1,0 +1,20 @@
+{
+  "snake": {
+    "title": "Snake",
+    "icon": "🐍",
+    "description": "Classic snake game. Eat food, grow longer, and don't hit the walls or yourself!",
+    "file": "snake.html"
+  },
+  "pong": {
+    "title": "Pong",
+    "icon": "🏓",
+    "description": "The original arcade game. Battle the AI and see who can score the most points!",
+    "file": "pong.html"
+  },
+  "breakout": {
+    "title": "Breakout",
+    "icon": "🧱",
+    "description": "Break all the bricks with your ball. Don't let it fall or you'll lose a life!",
+    "file": "breakout.html"
+  }
+}

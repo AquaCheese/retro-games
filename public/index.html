@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Games Arcade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px #0f0;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px #0f0, 0 0 20px #0f0;
+            }
+            to {
+                text-shadow: 0 0 20px #0f0, 0 0 30px #0f0, 0 0 40px #0f0;
+            }
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 40px;
+            color: #0ff;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .game-card {
+            background: #111;
+            border: 2px solid #0f0;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
+            border-color: #0ff;
+        }
+
+        .game-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+
+        .game-title {
+            font-size: 28px;
+            color: #0f0;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .game-card:hover .game-title {
+            color: #0ff;
+        }
+
+        .game-description {
+            font-size: 14px;
+            color: #888;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #0f0;
+            color: #0f0;
+            font-size: 14px;
+        }
+
+        .browse-button {
+            display: inline-block;
+            background: #111;
+            color: #0ff;
+            border: 2px solid #0ff;
+            padding: 15px 40px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 30px auto;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .browse-button:hover {
+            background: #0ff;
+            color: #000;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+            transform: scale(1.05);
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 32px;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+    
+    <div class="container">
+        <h1>🕹️ RETRO ARCADE 🕹️</h1>
+        <p class="subtitle">Choose your game and start playing!</p>
+
+        <div id="gamesGrid" class="games-grid">
+            <!-- Games will be loaded dynamically -->
+            <div style="grid-column: 1/-1; text-align: center; color: #0f0;">
+                Loading games...
+            </div>
+        </div>
+
+        <div class="button-container">
+            <a href="/browse.html" class="browse-button">
+                🎮 BROWSE & INSTALL MORE GAMES 🎮
+            </a>
+        </div>
+
+        <div class="footer">
+            <p>🎮 Retro Games Server | Running on Raspberry Pi 🎮</p>
+            <p style="margin-top: 10px; font-size: 12px;">Press F11 for fullscreen experience</p>
+        </div>
+    </div>
+
+    <script>
+        // Fetch and display games dynamically
+        async function loadGames() {
+            try {
+                const response = await fetch('/api/games');
+                const data = await response.json();
+                const gamesGrid = document.getElementById('gamesGrid');
+                
+                if (data.games && data.games.length > 0) {
+                    gamesGrid.innerHTML = data.games.map(game => `
+                        <a href="${game.url}" class="game-card">
+                            <div class="game-icon">${game.icon}</div>
+                            <div class="game-title">${game.title}</div>
+                            <div class="game-description">${game.description}</div>
+                            ${game.author ? `<div style="font-size: 12px; color: #666; margin-top: 10px;">by ${game.author}</div>` : ''}
+                        </a>
+                    `).join('');
+                } else {
+                    gamesGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #f00;">No games found. Add some games to get started!</div>';
+                }
+            } catch (error) {
+                console.error('Failed to load games:', error);
+                document.getElementById('gamesGrid').innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #f00;">Error loading games</div>';
+            }
+        }
+
+        // Load games on page load
+        loadGames();
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Number keys 1-9 to select games
+            if (e.key >= '1' && e.key <= '9') {
+                const gameLinks = document.querySelectorAll('.game-card');
+                const index = parseInt(e.key) - 1;
+                if (gameLinks[index]) {
+                    window.location.href = gameLinks[index].href;
+                }
+            }
+        });
+
+        // Easter egg: Konami code
+        let konamiCode = [];
+        const konami = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        
+        document.addEventListener('keydown', (e) => {
+            konamiCode.push(e.key);
+            konamiCode = konamiCode.slice(-10);
+            
+            if (konamiCode.join(',') === konami.join(',')) {
+                document.body.style.background = 'linear-gradient(45deg, #000, #003300)';
+                alert('🎉 KONAMI CODE ACTIVATED! 🎉\nYou found the secret!');
+            }
+        });
+    </script>
+</body>
+</html>
